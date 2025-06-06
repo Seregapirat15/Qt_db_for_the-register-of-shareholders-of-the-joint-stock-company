@@ -1,0 +1,9 @@
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/stocks1.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/install.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/stocks1_autogen_timestamp_deps.dir
+C:/Users/exxor/КР_БД/stocks1/build/Desktop_Qt_6_9_1_MinGW_64_bit-Debug/CMakeFiles/stocks1_autogen.dir
