@@ -3335,6 +3335,8 @@ release/ownersdialog.o: ../../ownersdialog.cpp ../../ownersdialog.h \
 		C:/Qt/6.9.1/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		C:/Qt/6.9.1/mingw_64/include/QtSql/QSqlQuery \
 		C:/Qt/6.9.1/mingw_64/include/QtSql/qsqlquery.h \
+		C:/Qt/6.9.1/mingw_64/include/QtSql/QSqlError \
+		C:/Qt/6.9.1/mingw_64/include/QtSql/qsqlerror.h \
 		C:/Qt/6.9.1/mingw_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\ownersdialog.o ..\..\ownersdialog.cpp
 
@@ -3593,6 +3595,8 @@ release/operationsdialog.o: ../../operationsdialog.cpp ../../operationsdialog.h 
 		C:/Qt/6.9.1/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		C:/Qt/6.9.1/mingw_64/include/QtSql/QSqlQuery \
 		C:/Qt/6.9.1/mingw_64/include/QtSql/qsqlquery.h \
+		C:/Qt/6.9.1/mingw_64/include/QtSql/QSqlError \
+		C:/Qt/6.9.1/mingw_64/include/QtSql/qsqlerror.h \
 		C:/Qt/6.9.1/mingw_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\operationsdialog.o ..\..\operationsdialog.cpp
 

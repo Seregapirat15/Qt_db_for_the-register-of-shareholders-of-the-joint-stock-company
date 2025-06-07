@@ -5,8 +5,6 @@
 #include <QSqlRecord>
 #include <QDebug>
 #include <QHeaderView>
-#include <QStatusBar>
-#include <QApplication>
 #include <QDateTime>
 
 MainWindow::MainWindow(const QString &role, QWidget *parent) : QMainWindow(parent) {
@@ -33,18 +31,6 @@ MainWindow::MainWindow(const QString &role, QWidget *parent) : QMainWindow(paren
     if (userRole == "admin") {
         tabWidget->addTab(createUsersTab(), "Пользователи");
     }
-    
-    // Создаем кнопку выхода
-    QPushButton *exitButton = new QPushButton("Выход", this);
-    exitButton->setStyleSheet("background-color: #d9534f; color: white; font-weight: bold;");
-    
-    // Создаем статусбар и добавляем в него кнопку выхода
-    QStatusBar *statusBar = new QStatusBar(this);
-    statusBar->addPermanentWidget(exitButton);
-    setStatusBar(statusBar);
-    
-    // Соединяем сигнал нажатия кнопки выхода со слотом exitApplication
-    connect(exitButton, &QPushButton::clicked, this, &MainWindow::exitApplication);
     
     // Настройка прав доступа в зависимости от роли
     setupPermissions();
@@ -846,21 +832,5 @@ void MainWindow::editOperation(const QModelIndex &index) {
         
         // Применяем изменения
         operationsModel->submitAll();
-    }
-}
-
-// Реализация слота для выхода из приложения
-void MainWindow::exitApplication() {
-    // Показываем диалог подтверждения
-    QMessageBox::StandardButton reply = QMessageBox::question(
-        this, 
-        "Подтверждение выхода", 
-        "Вы действительно хотите выйти из приложения?",
-        QMessageBox::Yes | QMessageBox::No
-    );
-    
-    // Если пользователь подтвердил выход, закрываем приложение
-    if (reply == QMessageBox::Yes) {
-        QApplication::quit();
     }
 } 
