@@ -44,17 +44,25 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "",
         "deleteShareholder",
         "filterShareholders",
+        "editShareholder",
+        "QModelIndex",
+        "index",
         "addSecurities",
         "deleteSecurities",
+        "editSecurities",
         "addOwner",
         "deleteOwner",
+        "editOwner",
         "addMeeting",
         "deleteMeeting",
+        "editMeeting",
         "addAttendance",
         "deleteAttendance",
         "addOperation",
         "deleteOperation",
-        "manageUsers"
+        "editOperation",
+        "manageUsers",
+        "exitApplication"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -64,28 +72,50 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'filterShareholders'
         QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'editShareholder'
+        QtMocHelpers::SlotData<void(const QModelIndex &)>(5, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 6, 7 },
+        }}),
         // Slot 'addSecurities'
-        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'deleteSecurities'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'addOwner'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'deleteOwner'
         QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'addMeeting'
+        // Slot 'deleteSecurities'
         QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'deleteMeeting'
-        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'addAttendance'
+        // Slot 'editSecurities'
+        QtMocHelpers::SlotData<void(const QModelIndex &)>(10, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 6, 7 },
+        }}),
+        // Slot 'addOwner'
         QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'deleteAttendance'
+        // Slot 'deleteOwner'
         QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'addOperation'
-        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'deleteOperation'
+        // Slot 'editOwner'
+        QtMocHelpers::SlotData<void(const QModelIndex &)>(13, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 6, 7 },
+        }}),
+        // Slot 'addMeeting'
         QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'manageUsers'
+        // Slot 'deleteMeeting'
         QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'editMeeting'
+        QtMocHelpers::SlotData<void(const QModelIndex &)>(16, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 6, 7 },
+        }}),
+        // Slot 'addAttendance'
+        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'deleteAttendance'
+        QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'addOperation'
+        QtMocHelpers::SlotData<void()>(19, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'deleteOperation'
+        QtMocHelpers::SlotData<void()>(20, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'editOperation'
+        QtMocHelpers::SlotData<void(const QModelIndex &)>(21, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 6, 7 },
+        }}),
+        // Slot 'manageUsers'
+        QtMocHelpers::SlotData<void()>(22, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'exitApplication'
+        QtMocHelpers::SlotData<void()>(23, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -112,21 +142,26 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 0: _t->addShareholder(); break;
         case 1: _t->deleteShareholder(); break;
         case 2: _t->filterShareholders(); break;
-        case 3: _t->addSecurities(); break;
-        case 4: _t->deleteSecurities(); break;
-        case 5: _t->addOwner(); break;
-        case 6: _t->deleteOwner(); break;
-        case 7: _t->addMeeting(); break;
-        case 8: _t->deleteMeeting(); break;
-        case 9: _t->addAttendance(); break;
-        case 10: _t->deleteAttendance(); break;
-        case 11: _t->addOperation(); break;
-        case 12: _t->deleteOperation(); break;
-        case 13: _t->manageUsers(); break;
+        case 3: _t->editShareholder((*reinterpret_cast< std::add_pointer_t<QModelIndex>>(_a[1]))); break;
+        case 4: _t->addSecurities(); break;
+        case 5: _t->deleteSecurities(); break;
+        case 6: _t->editSecurities((*reinterpret_cast< std::add_pointer_t<QModelIndex>>(_a[1]))); break;
+        case 7: _t->addOwner(); break;
+        case 8: _t->deleteOwner(); break;
+        case 9: _t->editOwner((*reinterpret_cast< std::add_pointer_t<QModelIndex>>(_a[1]))); break;
+        case 10: _t->addMeeting(); break;
+        case 11: _t->deleteMeeting(); break;
+        case 12: _t->editMeeting((*reinterpret_cast< std::add_pointer_t<QModelIndex>>(_a[1]))); break;
+        case 13: _t->addAttendance(); break;
+        case 14: _t->deleteAttendance(); break;
+        case 15: _t->addOperation(); break;
+        case 16: _t->deleteOperation(); break;
+        case 17: _t->editOperation((*reinterpret_cast< std::add_pointer_t<QModelIndex>>(_a[1]))); break;
+        case 18: _t->manageUsers(); break;
+        case 19: _t->exitApplication(); break;
         default: ;
         }
     }
-    (void)_a;
 }
 
 const QMetaObject *MainWindow::metaObject() const
@@ -148,14 +183,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 14)
+        if (_id < 20)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 14;
+        _id -= 20;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 14)
+        if (_id < 20)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 14;
+        _id -= 20;
     }
     return _id;
 }

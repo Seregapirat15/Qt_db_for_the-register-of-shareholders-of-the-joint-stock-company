@@ -1,0 +1,13 @@
+release/main.o
+release/mainwindow.o
+release/shareholderdialog.o
+release/securitiesdialog.o
+release/meetingdialog.o
+release/ownersdialog.o
+release/operationsdialog.o
+release/moc_mainwindow.o
+release/moc_shareholderdialog.o
+release/moc_securitiesdialog.o
+release/moc_meetingdialog.o
+release/moc_ownersdialog.o
+release/moc_operationsdialog.o

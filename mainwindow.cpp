@@ -5,6 +5,8 @@
 #include <QSqlRecord>
 #include <QDebug>
 #include <QHeaderView>
+#include <QStatusBar>
+#include <QApplication>
 #include <QDateTime>
 
 MainWindow::MainWindow(const QString &role, QWidget *parent) : QMainWindow(parent) {
@@ -32,8 +34,27 @@ MainWindow::MainWindow(const QString &role, QWidget *parent) : QMainWindow(paren
         tabWidget->addTab(createUsersTab(), "Пользователи");
     }
     
+    // Создаем кнопку выхода
+    QPushButton *exitButton = new QPushButton("Выход", this);
+    exitButton->setStyleSheet("background-color: #d9534f; color: white; font-weight: bold;");
+    
+    // Создаем статусбар и добавляем в него кнопку выхода
+    QStatusBar *statusBar = new QStatusBar(this);
+    statusBar->addPermanentWidget(exitButton);
+    setStatusBar(statusBar);
+    
+    // Соединяем сигнал нажатия кнопки выхода со слотом exitApplication
+    connect(exitButton, &QPushButton::clicked, this, &MainWindow::exitApplication);
+    
     // Настройка прав доступа в зависимости от роли
     setupPermissions();
+    
+    // Подключаем сигналы двойного клика для редактирования записей
+    connect(shareholdersView, &QTableView::doubleClicked, this, &MainWindow::editShareholder);
+    connect(securitiesView, &QTableView::doubleClicked, this, &MainWindow::editSecurities);
+    connect(meetingsView, &QTableView::doubleClicked, this, &MainWindow::editMeeting);
+    connect(ownersView, &QTableView::doubleClicked, this, &MainWindow::editOwner);
+    connect(operationsView, &QTableView::doubleClicked, this, &MainWindow::editOperation);
 }
 
 MainWindow::~MainWindow() {
@@ -352,18 +373,28 @@ QWidget* MainWindow::createReportsTab() {
 
 // Реализация слотов для Акционеров
 void MainWindow::addShareholder() {
-    // Добавление новой записи
-    int row = shareholdersModel->rowCount();
-    shareholdersModel->insertRow(row);
-    shareholdersModel->setData(shareholdersModel->index(row, 1), "Новый акционер");
-    shareholdersModel->setData(shareholdersModel->index(row, 2), QDate::currentDate());
-    shareholdersModel->setData(shareholdersModel->index(row, 3), "Паспорт");
-    shareholdersModel->setData(shareholdersModel->index(row, 4), "email@example.com");
-    shareholdersModel->setData(shareholdersModel->index(row, 5), "+7 (XXX) XXX-XX-XX");
+    // Создаем диалог для добавления нового акционера
+    ShareholderDialog dialog(this);
     
-    // Фокус на новой строке для редактирования
-    shareholdersView->selectRow(row);
-    shareholdersView->scrollToBottom();
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем данные из диалога
+        QSqlRecord record = dialog.getRecord();
+        
+        // Добавление новой записи
+        int row = shareholdersModel->rowCount();
+        shareholdersModel->insertRow(row);
+        
+        // Заполняем данные
+        shareholdersModel->setData(shareholdersModel->index(row, 1), record.value("ФИО_акционера"));
+        shareholdersModel->setData(shareholdersModel->index(row, 2), record.value("Дата_рождения"));
+        shareholdersModel->setData(shareholdersModel->index(row, 3), record.value("Паспортные_данные"));
+        shareholdersModel->setData(shareholdersModel->index(row, 4), record.value("Электронная_почта"));
+        shareholdersModel->setData(shareholdersModel->index(row, 5), record.value("Номер_телефона"));
+        
+        // Фокус на новой строке
+        shareholdersView->selectRow(row);
+        shareholdersView->scrollToBottom();
+    }
 }
 
 void MainWindow::deleteShareholder() {
@@ -398,15 +429,27 @@ void MainWindow::filterShareholders() {
 
 // Реализация слотов для Ценных бумаг
 void MainWindow::addSecurities() {
-    int row = securitiesModel->rowCount();
-    securitiesModel->insertRow(row);
-    securitiesModel->setData(securitiesModel->index(row, 1), "Акция АО \"Компания\"");
-    securitiesModel->setData(securitiesModel->index(row, 2), "Обычная");
-    securitiesModel->setData(securitiesModel->index(row, 3), 1000.00);
-    securitiesModel->setData(securitiesModel->index(row, 4), 100);
+    // Создаем диалог для добавления новой ценной бумаги
+    SecuritiesDialog dialog(this);
     
-    securitiesView->selectRow(row);
-    securitiesView->scrollToBottom();
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем данные из диалога
+        QSqlRecord record = dialog.getRecord();
+        
+        // Добавление новой записи
+        int row = securitiesModel->rowCount();
+        securitiesModel->insertRow(row);
+        
+        // Заполняем данные
+        securitiesModel->setData(securitiesModel->index(row, 1), record.value("Название_ценной_бумаги"));
+        securitiesModel->setData(securitiesModel->index(row, 2), record.value("Тип_ценной_бумаги"));
+        securitiesModel->setData(securitiesModel->index(row, 3), record.value("Номинальная_стоимость"));
+        securitiesModel->setData(securitiesModel->index(row, 4), record.value("Количество_в_пакете_акций"));
+        
+        // Фокус на новой строке
+        securitiesView->selectRow(row);
+        securitiesView->scrollToBottom();
+    }
 }
 
 void MainWindow::deleteSecurities() {
@@ -428,11 +471,26 @@ void MainWindow::deleteSecurities() {
 
 // Реализация слотов для Владельцев ценных бумаг
 void MainWindow::addOwner() {
-    int row = ownersModel->rowCount();
-    ownersModel->insertRow(row);
+    // Создаем диалог для добавления нового владельца ценных бумаг
+    OwnersDialog dialog(this);
     
-    ownersView->selectRow(row);
-    ownersView->scrollToBottom();
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем данные из диалога
+        QSqlRecord record = dialog.getRecord();
+        
+        // Добавление новой записи
+        int row = ownersModel->rowCount();
+        ownersModel->insertRow(row);
+        
+        // Заполняем данные
+        ownersModel->setData(ownersModel->index(row, 1), record.value("ID_Акционера"));
+        ownersModel->setData(ownersModel->index(row, 2), record.value("Номер_пакета_акций"));
+        ownersModel->setData(ownersModel->index(row, 3), record.value("Дата_приобретения"));
+        
+        // Фокус на новой строке
+        ownersView->selectRow(row);
+        ownersView->scrollToBottom();
+    }
 }
 
 void MainWindow::deleteOwner() {
@@ -454,13 +512,27 @@ void MainWindow::deleteOwner() {
 
 // Реализация слотов для Собраний акционеров
 void MainWindow::addMeeting() {
-    int row = meetingsModel->rowCount();
-    meetingsModel->insertRow(row);
-    meetingsModel->setData(meetingsModel->index(row, 1), "Новое собрание");
-    meetingsModel->setData(meetingsModel->index(row, 2), QDate::currentDate());
+    // Создаем диалог для добавления нового собрания
+    MeetingDialog dialog(this);
     
-    meetingsView->selectRow(row);
-    meetingsView->scrollToBottom();
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем данные из диалога
+        QSqlRecord record = dialog.getRecord();
+        
+        // Добавление новой записи
+        int row = meetingsModel->rowCount();
+        meetingsModel->insertRow(row);
+        
+        // Заполняем данные
+        meetingsModel->setData(meetingsModel->index(row, 1), record.value("Повестка_дня"));
+        meetingsModel->setData(meetingsModel->index(row, 2), record.value("Дата"));
+        meetingsModel->setData(meetingsModel->index(row, 3), record.value("Время_начала"));
+        meetingsModel->setData(meetingsModel->index(row, 4), record.value("Время_окончания"));
+        
+        // Фокус на новой строке
+        meetingsView->selectRow(row);
+        meetingsView->scrollToBottom();
+    }
 }
 
 void MainWindow::deleteMeeting() {
@@ -509,14 +581,27 @@ void MainWindow::deleteAttendance() {
 
 // Реализация слотов для Операций с акциями
 void MainWindow::addOperation() {
-    int row = operationsModel->rowCount();
-    operationsModel->insertRow(row);
-    operationsModel->setData(operationsModel->index(row, 1), "Продавец");
-    operationsModel->setData(operationsModel->index(row, 2), "Покупатель");
-    operationsModel->setData(operationsModel->index(row, 3), QDateTime::currentDateTime());
+    // Создаем диалог для добавления новой операции с акциями
+    OperationsDialog dialog(this);
     
-    operationsView->selectRow(row);
-    operationsView->scrollToBottom();
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем данные из диалога
+        QSqlRecord record = dialog.getRecord();
+        
+        // Добавление новой записи
+        int row = operationsModel->rowCount();
+        operationsModel->insertRow(row);
+        
+        // Заполняем данные
+        operationsModel->setData(operationsModel->index(row, 1), record.value("ФИО_Продавца"));
+        operationsModel->setData(operationsModel->index(row, 2), record.value("ФИО_Покупателя"));
+        operationsModel->setData(operationsModel->index(row, 3), record.value("Время_сделки"));
+        operationsModel->setData(operationsModel->index(row, 4), record.value("Номер_пакета_акций"));
+        
+        // Фокус на новой строке
+        operationsView->selectRow(row);
+        operationsView->scrollToBottom();
+    }
 }
 
 void MainWindow::deleteOperation() {
@@ -639,4 +724,143 @@ void MainWindow::manageUsers() {
     
     usersView->selectRow(row);
     usersView->scrollToBottom();
+}
+
+// Добавляем новые слоты для редактирования записей по двойному клику
+void MainWindow::editShareholder(const QModelIndex &index) {
+    if (!index.isValid()) return;
+    
+    // Получаем запись для редактирования
+    QSqlRecord record = shareholdersModel->record(index.row());
+    
+    // Создаем диалог с текущими данными
+    ShareholderDialog dialog(this, &record);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем обновленные данные
+        QSqlRecord updatedRecord = dialog.getRecord();
+        
+        // Обновляем запись в модели
+        shareholdersModel->setData(shareholdersModel->index(index.row(), 1), updatedRecord.value("ФИО_акционера"));
+        shareholdersModel->setData(shareholdersModel->index(index.row(), 2), updatedRecord.value("Дата_рождения"));
+        shareholdersModel->setData(shareholdersModel->index(index.row(), 3), updatedRecord.value("Паспортные_данные"));
+        shareholdersModel->setData(shareholdersModel->index(index.row(), 4), updatedRecord.value("Электронная_почта"));
+        shareholdersModel->setData(shareholdersModel->index(index.row(), 5), updatedRecord.value("Номер_телефона"));
+        
+        // Применяем изменения
+        shareholdersModel->submitAll();
+    }
+}
+
+void MainWindow::editSecurities(const QModelIndex &index) {
+    if (!index.isValid()) return;
+    
+    // Получаем запись для редактирования
+    QSqlRecord record = securitiesModel->record(index.row());
+    
+    // Создаем диалог с текущими данными
+    SecuritiesDialog dialog(this, &record);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем обновленные данные
+        QSqlRecord updatedRecord = dialog.getRecord();
+        
+        // Обновляем запись в модели
+        securitiesModel->setData(securitiesModel->index(index.row(), 1), updatedRecord.value("Название_ценной_бумаги"));
+        securitiesModel->setData(securitiesModel->index(index.row(), 2), updatedRecord.value("Тип_ценной_бумаги"));
+        securitiesModel->setData(securitiesModel->index(index.row(), 3), updatedRecord.value("Номинальная_стоимость"));
+        securitiesModel->setData(securitiesModel->index(index.row(), 4), updatedRecord.value("Количество_в_пакете_акций"));
+        
+        // Применяем изменения
+        securitiesModel->submitAll();
+    }
+}
+
+void MainWindow::editMeeting(const QModelIndex &index) {
+    if (!index.isValid()) return;
+    
+    // Получаем запись для редактирования
+    QSqlRecord record = meetingsModel->record(index.row());
+    
+    // Создаем диалог с текущими данными
+    MeetingDialog dialog(this, &record);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем обновленные данные
+        QSqlRecord updatedRecord = dialog.getRecord();
+        
+        // Обновляем запись в модели
+        meetingsModel->setData(meetingsModel->index(index.row(), 1), updatedRecord.value("Повестка_дня"));
+        meetingsModel->setData(meetingsModel->index(index.row(), 2), updatedRecord.value("Дата"));
+        meetingsModel->setData(meetingsModel->index(index.row(), 3), updatedRecord.value("Время_начала"));
+        meetingsModel->setData(meetingsModel->index(index.row(), 4), updatedRecord.value("Время_окончания"));
+        
+        // Применяем изменения
+        meetingsModel->submitAll();
+    }
+}
+
+// Добавляем реализацию для редактирования владельцев ценных бумаг
+void MainWindow::editOwner(const QModelIndex &index) {
+    if (!index.isValid()) return;
+    
+    // Получаем запись для редактирования
+    QSqlRecord record = ownersModel->record(index.row());
+    
+    // Создаем диалог с текущими данными
+    OwnersDialog dialog(this, &record);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем обновленные данные
+        QSqlRecord updatedRecord = dialog.getRecord();
+        
+        // Обновляем запись в модели
+        ownersModel->setData(ownersModel->index(index.row(), 1), updatedRecord.value("ID_Акционера"));
+        ownersModel->setData(ownersModel->index(index.row(), 2), updatedRecord.value("Номер_пакета_акций"));
+        ownersModel->setData(ownersModel->index(index.row(), 3), updatedRecord.value("Дата_приобретения"));
+        
+        // Применяем изменения
+        ownersModel->submitAll();
+    }
+}
+
+// Добавляем реализацию для редактирования операций с акциями
+void MainWindow::editOperation(const QModelIndex &index) {
+    if (!index.isValid()) return;
+    
+    // Получаем запись для редактирования
+    QSqlRecord record = operationsModel->record(index.row());
+    
+    // Создаем диалог с текущими данными
+    OperationsDialog dialog(this, &record);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        // Получаем обновленные данные
+        QSqlRecord updatedRecord = dialog.getRecord();
+        
+        // Обновляем запись в модели
+        operationsModel->setData(operationsModel->index(index.row(), 1), updatedRecord.value("ФИО_Продавца"));
+        operationsModel->setData(operationsModel->index(index.row(), 2), updatedRecord.value("ФИО_Покупателя"));
+        operationsModel->setData(operationsModel->index(index.row(), 3), updatedRecord.value("Время_сделки"));
+        operationsModel->setData(operationsModel->index(index.row(), 4), updatedRecord.value("Номер_пакета_акций"));
+        
+        // Применяем изменения
+        operationsModel->submitAll();
+    }
+}
+
+// Реализация слота для выхода из приложения
+void MainWindow::exitApplication() {
+    // Показываем диалог подтверждения
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this, 
+        "Подтверждение выхода", 
+        "Вы действительно хотите выйти из приложения?",
+        QMessageBox::Yes | QMessageBox::No
+    );
+    
+    // Если пользователь подтвердил выход, закрываем приложение
+    if (reply == QMessageBox::Yes) {
+        QApplication::quit();
+    }
 } 

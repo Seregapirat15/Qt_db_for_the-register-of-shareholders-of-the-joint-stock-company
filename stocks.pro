@@ -27,10 +27,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    shareholderdialog.cpp \
+    securitiesdialog.cpp \
+    meetingdialog.cpp \
+    ownersdialog.cpp \
+    operationsdialog.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    shareholderdialog.h \
+    securitiesdialog.h \
+    meetingdialog.h \
+    ownersdialog.h \
+    operationsdialog.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

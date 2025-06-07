@@ -17,6 +17,11 @@
 #include <QDoubleSpinBox>
 #include <QGroupBox>
 #include <QFormLayout>
+#include "shareholderdialog.h"
+#include "securitiesdialog.h"
+#include "meetingdialog.h"
+#include "ownersdialog.h"
+#include "operationsdialog.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -30,18 +35,22 @@ private slots:
     void addShareholder();
     void deleteShareholder();
     void filterShareholders();
+    void editShareholder(const QModelIndex &index);
     
     // Слоты для таблицы Ценные бумаги
     void addSecurities();
     void deleteSecurities();
+    void editSecurities(const QModelIndex &index);
     
     // Слоты для таблицы Владельцы ценных бумаг
     void addOwner();
     void deleteOwner();
+    void editOwner(const QModelIndex &index);
     
     // Слоты для таблицы Собрание акционеров
     void addMeeting();
     void deleteMeeting();
+    void editMeeting(const QModelIndex &index);
     
     // Слоты для таблицы Присутствие
     void addAttendance();
@@ -50,9 +59,13 @@ private slots:
     // Слоты для таблицы Операция с акцией
     void addOperation();
     void deleteOperation();
+    void editOperation(const QModelIndex &index);
     
     // Слот для управления пользователями (только для администратора)
     void manageUsers();
+    
+    // Слот для выхода из приложения
+    void exitApplication();
 
 private:
     // Создание вкладок
