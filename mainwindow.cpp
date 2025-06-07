@@ -307,8 +307,31 @@ QWidget* MainWindow::createReportsTab() {
     QSqlQueryModel *shareholdersReportModel = new QSqlQueryModel(this);
     shareholdersReportModel->setQuery("SELECT * FROM Акционеры_и_Акции");
     
+    // Проверка ошибок для первой модели
+    if (shareholdersReportModel->lastError().isValid()) {
+        qDebug() << "Ошибка запроса к Акционеры_и_Акции:" << shareholdersReportModel->lastError().text();
+    }
+    
     QSqlQueryModel *attendanceReportModel = new QSqlQueryModel(this);
-    attendanceReportModel->setQuery("SELECT * FROM Посещаемость_собраний");
+    
+    // Используем прямой SQL-запрос вместо представления
+    QString directQuery = "SELECT "
+                          "s.ID_собрания, "
+                          "s.Повестка_дня, "
+                          "s.Дата, "
+                          "COUNT(CASE WHEN p.Присутствие = 'Да' THEN 1 END) AS Количество_присутствующих, "
+                          "COUNT(p.ID_записи) AS Общее_количество_акционеров, "
+                          "ROUND((COUNT(CASE WHEN p.Присутствие = 'Да' THEN 1 END)::numeric / NULLIF(COUNT(p.ID_записи), 0)) * 100, 2) AS Процент_посещаемости "
+                          "FROM Собрание_акционеров s "
+                          "LEFT JOIN Присутствие p ON s.ID_собрания = p.причина_собрания "
+                          "GROUP BY s.ID_собрания, s.Повестка_дня, s.Дата";
+    
+    attendanceReportModel->setQuery(directQuery);
+    
+    // Проверка ошибок для второй модели
+    if (attendanceReportModel->lastError().isValid()) {
+        qDebug() << "Ошибка запроса к отчету посещаемости:" << attendanceReportModel->lastError().text();
+    }
     
     // Настройка представлений
     shareholdersReportView->setModel(shareholdersReportModel);
