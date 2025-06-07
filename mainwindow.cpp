@@ -27,11 +27,6 @@ MainWindow::MainWindow(const QString &role, QWidget *parent) : QMainWindow(paren
     tabWidget->addTab(createOperationsTab(), "Операции с акциями");
     tabWidget->addTab(createReportsTab(), "Отчеты");
     
-    // Если пользователь администратор, добавляем вкладку управления пользователями
-    if (userRole == "admin") {
-        tabWidget->addTab(createUsersTab(), "Пользователи");
-    }
-    
     // Настройка прав доступа в зависимости от роли
     setupPermissions();
     
@@ -640,78 +635,6 @@ void MainWindow::setupPermissions() {
     }
 }
 
-// Создание вкладки управления пользователями
-QWidget* MainWindow::createUsersTab() {
-    QWidget *widget = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout(widget);
-    
-    // Таблица пользователей
-    usersModel = new QSqlTableModel(this);
-    usersModel->setTable("Пользователи");
-    usersModel->setEditStrategy(QSqlTableModel::OnFieldChange);
-    usersModel->setHeaderData(0, Qt::Horizontal, "ID");
-    usersModel->setHeaderData(1, Qt::Horizontal, "Имя пользователя");
-    usersModel->setHeaderData(2, Qt::Horizontal, "Пароль");
-    usersModel->setHeaderData(3, Qt::Horizontal, "Роль");
-    usersModel->setHeaderData(4, Qt::Horizontal, "ФИО");
-    usersModel->setHeaderData(5, Qt::Horizontal, "Email");
-    usersModel->setHeaderData(6, Qt::Horizontal, "Дата создания");
-    usersModel->setHeaderData(7, Qt::Horizontal, "Активен");
-    usersModel->select();
-    
-    usersView = new QTableView();
-    usersView->setModel(usersModel);
-    usersView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    usersView->setSelectionMode(QAbstractItemView::SingleSelection);
-    usersView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    layout->addWidget(usersView);
-    
-    // Кнопки
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    QPushButton *addButton = new QPushButton("Добавить");
-    QPushButton *deleteButton = new QPushButton("Удалить");
-    
-    buttonLayout->addWidget(addButton);
-    buttonLayout->addWidget(deleteButton);
-    layout->addLayout(buttonLayout);
-    
-    // Соединение сигналов и слотов
-    connect(addButton, &QPushButton::clicked, this, &MainWindow::manageUsers);
-    connect(deleteButton, &QPushButton::clicked, this, [this]() {
-        QModelIndex currentIndex = usersView->currentIndex();
-        if (!currentIndex.isValid()) {
-            QMessageBox::warning(this, "Предупреждение", "Выберите пользователя для удаления");
-            return;
-        }
-        
-        int reply = QMessageBox::question(this, "Подтверждение", 
-                                         "Вы уверены, что хотите удалить этого пользователя?",
-                                         QMessageBox::Yes | QMessageBox::No);
-        
-        if (reply == QMessageBox::Yes) {
-            usersModel->removeRow(currentIndex.row());
-            usersModel->select();
-        }
-    });
-    
-    return widget;
-}
-
-// Реализация слота для управления пользователями
-void MainWindow::manageUsers() {
-    int row = usersModel->rowCount();
-    usersModel->insertRow(row);
-    usersModel->setData(usersModel->index(row, 1), "новый_пользователь");
-    usersModel->setData(usersModel->index(row, 2), "пароль");
-    usersModel->setData(usersModel->index(row, 3), "user");
-    usersModel->setData(usersModel->index(row, 4), "Новый Пользователь");
-    usersModel->setData(usersModel->index(row, 5), "new_user@example.com");
-    usersModel->setData(usersModel->index(row, 7), true);
-    
-    usersView->selectRow(row);
-    usersView->scrollToBottom();
-}
-
 // Добавляем новые слоты для редактирования записей по двойному клику
 void MainWindow::editShareholder(const QModelIndex &index) {
     if (!index.isValid()) return;
@@ -739,6 +662,13 @@ void MainWindow::editShareholder(const QModelIndex &index) {
 }
 
 void MainWindow::editSecurities(const QModelIndex &index) {
+    // Проверяем роль пользователя, если не admin - показываем сообщение и выходим
+    if (userRole != "admin") {
+        QMessageBox::warning(this, "Ограниченный доступ", 
+                           "У вас нет прав на редактирование этой таблицы");
+        return;
+    }
+    
     if (!index.isValid()) return;
     
     // Получаем запись для редактирования
@@ -763,6 +693,13 @@ void MainWindow::editSecurities(const QModelIndex &index) {
 }
 
 void MainWindow::editMeeting(const QModelIndex &index) {
+    // Проверяем роль пользователя, если не admin - показываем сообщение и выходим
+    if (userRole != "admin") {
+        QMessageBox::warning(this, "Ограниченный доступ", 
+                           "У вас нет прав на редактирование этой таблицы");
+        return;
+    }
+    
     if (!index.isValid()) return;
     
     // Получаем запись для редактирования
@@ -788,6 +725,13 @@ void MainWindow::editMeeting(const QModelIndex &index) {
 
 // Добавляем реализацию для редактирования владельцев ценных бумаг
 void MainWindow::editOwner(const QModelIndex &index) {
+    // Проверяем роль пользователя, если не admin - показываем сообщение и выходим
+    if (userRole != "admin") {
+        QMessageBox::warning(this, "Ограниченный доступ", 
+                           "У вас нет прав на редактирование этой таблицы");
+        return;
+    }
+    
     if (!index.isValid()) return;
     
     // Получаем запись для редактирования
@@ -812,6 +756,13 @@ void MainWindow::editOwner(const QModelIndex &index) {
 
 // Добавляем реализацию для редактирования операций с акциями
 void MainWindow::editOperation(const QModelIndex &index) {
+    // Проверяем роль пользователя, если не admin - показываем сообщение и выходим
+    if (userRole != "admin") {
+        QMessageBox::warning(this, "Ограниченный доступ", 
+                           "У вас нет прав на редактирование этой таблицы");
+        return;
+    }
+    
     if (!index.isValid()) return;
     
     // Получаем запись для редактирования

@@ -60,9 +60,6 @@ private slots:
     void addOperation();
     void deleteOperation();
     void editOperation(const QModelIndex &index);
-    
-    // Слот для управления пользователями (только для администратора)
-    void manageUsers();
 
 private:
     // Создание вкладок
@@ -73,7 +70,6 @@ private:
     QWidget* createAttendanceTab();
     QWidget* createOperationsTab();
     QWidget* createReportsTab();
-    QWidget* createUsersTab(); // Новая вкладка для управления пользователями
     
     // Модели данных
     QSqlTableModel *shareholdersModel;
@@ -82,7 +78,6 @@ private:
     QSqlTableModel *meetingsModel;
     QSqlRelationalTableModel *attendanceModel;
     QSqlTableModel *operationsModel;
-    QSqlTableModel *usersModel;     // Модель для управления пользователями
     
     // Представления данных
     QTableView *shareholdersView;
@@ -91,7 +86,6 @@ private:
     QTableView *meetingsView;
     QTableView *attendanceView;
     QTableView *operationsView;
-    QTableView *usersView;          // Представление для управления пользователями
     
     // Поля для фильтрации акционеров
     QLineEdit *shareholderFilterEdit;
