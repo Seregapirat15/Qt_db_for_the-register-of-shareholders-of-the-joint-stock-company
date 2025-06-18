@@ -6,6 +6,9 @@
 #include <QDebug>
 #include <QHeaderView>
 #include <QDateTime>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 
 MainWindow::MainWindow(const QString &role, QWidget *parent) : QMainWindow(parent) {
     // Сохраняем роль пользователя
@@ -168,14 +171,18 @@ QWidget* MainWindow::createSecuritiesTab() {
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *addButton = new QPushButton("Добавить");
     QPushButton *deleteButton = new QPushButton("Удалить");
-    
+    QPushButton *toOwnersButton = new QPushButton("Перейти к владельцам ценных бумаг");
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(deleteButton);
+    buttonLayout->addWidget(toOwnersButton);
     layout->addLayout(buttonLayout);
     
     // Соединение сигналов и слотов
     connect(addButton, &QPushButton::clicked, this, &MainWindow::addSecurities);
     connect(deleteButton, &QPushButton::clicked, this, &MainWindow::deleteSecurities);
+    connect(toOwnersButton, &QPushButton::clicked, [this]() {
+        if (tabWidget) tabWidget->setCurrentIndex(2); // Владельцы ценных бумаг
+    });
     
     return widget;
 }
@@ -197,14 +204,18 @@ QWidget* MainWindow::createOwnersTab() {
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *addButton = new QPushButton("Добавить");
     QPushButton *deleteButton = new QPushButton("Удалить");
-    
+    QPushButton *toSecuritiesButton = new QPushButton("Перейти к ценным бумагам");
     buttonLayout->addWidget(addButton);
     buttonLayout->addWidget(deleteButton);
+    buttonLayout->addWidget(toSecuritiesButton);
     layout->addLayout(buttonLayout);
     
     // Соединение сигналов и слотов
     connect(addButton, &QPushButton::clicked, this, &MainWindow::addOwner);
     connect(deleteButton, &QPushButton::clicked, this, &MainWindow::deleteOwner);
+    connect(toSecuritiesButton, &QPushButton::clicked, [this]() {
+        if (tabWidget) tabWidget->setCurrentIndex(1); // Ценные бумаги
+    });
     
     return widget;
 }
@@ -302,21 +313,19 @@ QWidget* MainWindow::createReportsTab() {
     QVBoxLayout *layout = new QVBoxLayout(widget);
     
     // Создаем представления для отображения отчетов
-    QTableView *shareholdersReportView = new QTableView();
-    QTableView *attendanceReportView = new QTableView();
+    shareholdersReportView = new QTableView();
+    attendanceReportView = new QTableView();
+    ownershipStructureReportView = new QTableView();
+    stockOperationsReportView = new QTableView();
     
     // Создаем модели для отчетов
     QSqlQueryModel *shareholdersReportModel = new QSqlQueryModel(this);
     shareholdersReportModel->setQuery("SELECT * FROM Акционеры_и_Акции");
-    
-    // Проверка ошибок для первой модели
     if (shareholdersReportModel->lastError().isValid()) {
         qDebug() << "Ошибка запроса к Акционеры_и_Акции:" << shareholdersReportModel->lastError().text();
     }
     
     QSqlQueryModel *attendanceReportModel = new QSqlQueryModel(this);
-    
-    // Используем прямой SQL-запрос вместо представления
     QString directQuery = "SELECT "
                           "s.ID_собрания, "
                           "s.Повестка_дня, "
@@ -327,29 +336,81 @@ QWidget* MainWindow::createReportsTab() {
                           "FROM Собрание_акционеров s "
                           "LEFT JOIN Присутствие p ON s.ID_собрания = p.причина_собрания "
                           "GROUP BY s.ID_собрания, s.Повестка_дня, s.Дата";
-    
     attendanceReportModel->setQuery(directQuery);
-    
-    // Проверка ошибок для второй модели
     if (attendanceReportModel->lastError().isValid()) {
         qDebug() << "Ошибка запроса к отчету посещаемости:" << attendanceReportModel->lastError().text();
+    }
+    
+    QSqlQueryModel *ownershipStructureReportModel = new QSqlQueryModel(this);
+    ownershipStructureReportModel->setQuery("SELECT * FROM Структура_владения_акционерным_капиталом");
+    if (ownershipStructureReportModel->lastError().isValid()) {
+        qDebug() << "Ошибка запроса к Структура_владения_акционерным_капиталом:" << ownershipStructureReportModel->lastError().text();
+    }
+    
+    QSqlQueryModel *stockOperationsReportModel = new QSqlQueryModel(this);
+    stockOperationsReportModel->setQuery("SELECT * FROM Операции_с_акциями");
+    if (stockOperationsReportModel->lastError().isValid()) {
+        qDebug() << "Ошибка запроса к Операции_с_акциями:" << stockOperationsReportModel->lastError().text();
     }
     
     // Настройка представлений
     shareholdersReportView->setModel(shareholdersReportModel);
     shareholdersReportView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    
     attendanceReportView->setModel(attendanceReportModel);
     attendanceReportView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ownershipStructureReportView->setModel(ownershipStructureReportModel);
+    ownershipStructureReportView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    stockOperationsReportView->setModel(stockOperationsReportModel);
+    stockOperationsReportView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     
     // Создаем вкладки для отчетов
-    QTabWidget *reportsTabWidget = new QTabWidget();
+    reportsTabWidget = new QTabWidget();
     reportsTabWidget->addTab(shareholdersReportView, "Акционеры и акции");
     reportsTabWidget->addTab(attendanceReportView, "Посещаемость собраний");
+    reportsTabWidget->addTab(ownershipStructureReportView, "Структура владения капиталом");
+    reportsTabWidget->addTab(stockOperationsReportView, "Операции с акциями");
     
     layout->addWidget(reportsTabWidget);
     
+    // Кнопка экспорта
+    QPushButton *exportButton = new QPushButton("Экспорт в Excel (CSV)", widget);
+    layout->addWidget(exportButton);
+    connect(exportButton, &QPushButton::clicked, this, &MainWindow::exportReportToExcel);
+    
     return widget;
+}
+
+void MainWindow::exportReportToExcel() {
+    if (!reportsTabWidget) return;
+    QTableView *currentView = qobject_cast<QTableView*>(reportsTabWidget->currentWidget());
+    if (!currentView) return;
+    QAbstractItemModel *model = currentView->model();
+    if (!model) return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Сохранить отчет", "", "Excel CSV (*.csv)");
+    if (fileName.isEmpty()) return;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Ошибка", "Не удалось открыть файл для записи");
+        return;
+    }
+
+    QTextStream out(&file);
+    // Заголовки
+    QStringList headers;
+    for (int col = 0; col < model->columnCount(); ++col)
+        headers << model->headerData(col, Qt::Horizontal).toString();
+    out << headers.join(";") << "\n";
+    // Данные
+    for (int row = 0; row < model->rowCount(); ++row) {
+        QStringList rowData;
+        for (int col = 0; col < model->columnCount(); ++col)
+            rowData << model->data(model->index(row, col)).toString();
+        out << rowData.join(";") << "\n";
+    }
+    file.close();
+    QMessageBox::information(this, "Экспорт завершен", "Данные успешно экспортированы в Excel (CSV).");
 }
 
 // Реализация слотов для Акционеров

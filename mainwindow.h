@@ -61,6 +61,8 @@ private slots:
     void deleteOperation();
     void editOperation(const QModelIndex &index);
 
+    void exportReportToExcel();
+
 private:
     // Создание вкладок
     QWidget* createShareholdersTab();
@@ -101,6 +103,13 @@ private:
     
     // Настройка разрешений в зависимости от роли
     void setupPermissions();
+
+    // Для вкладки отчетов
+    QTabWidget *reportsTabWidget = nullptr;
+    QTableView *shareholdersReportView = nullptr;
+    QTableView *attendanceReportView = nullptr;
+    QTableView *ownershipStructureReportView = nullptr;
+    QTableView *stockOperationsReportView = nullptr;
 };
 
 #endif // MAINWINDOW_H 
